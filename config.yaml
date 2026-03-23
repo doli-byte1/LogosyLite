@@ -1,0 +1,21 @@
+provider: "google"                  # "google" = direct API, "openrouter" = proxy
+google_api_key_env: "GOOGLE_API_KEY"
+openrouter_api_key_env: "OPENROUTER_API_KEY"
+image_model: "gemini-3-pro-image-preview"
+# image_model: "google/gemini-3.1-flash-image-preview"  # openrouter
+text_model: "gemini-2.5-flash"
+timeout_image: 120
+timeout_text: 30
+max_retries: 3
+keep_originals: false
+keep_last_runs: 3
+icon_size: 64
+logo_sizes: [64, 32]
+font_path: "assets/fonts/Poppins-Bold.ttf"
+font_multiplier: 0.55
+font_size_min: 12
+icon_text_gap: 6
+output_dir: "output"
+default_primary: "#CC2233"
+default_accent: "#1A3A6A"
+negative: "no text, no thin lines, no shadows, no gradients, no 3D, no internal cutouts, no multiple objects"

@@ -1,0 +1,7 @@
+Stworz mikroikone app-icon.
+Docelowy rozmiar: 64x64 px, readable at 16x16 px.
+Uzyj tylko 1 glownego symbolu: [OPIS SYMBOLU].
+Opcjonalnie dodaj tylko 1 maly akcent.
+flat vector, grube kszalty, maksymalnie 2 kolory: [PRIMARY] i [ACCENT], przezroczyste tlo.
+Styl: favicon, pictogram, ultra minimalist.
+Wazne: [NEGATIVE]

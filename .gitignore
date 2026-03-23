@@ -1,0 +1,33 @@
+# Sekrety
+.env
+
+# Output
+output/
+
+# Python
+__pycache__/
+*.pyc
+.ruff_cache/
+.mypy_cache/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Edytor / narzedzia
+.vscode/
+.idea/
+.claude/
+*.swp
+*~
+
+# Notatki lokalne
+CLAUDE.md
+HANDOFF.md
+TODO.md
+
+# Env
+venv/
+.venv/
