@@ -53,7 +53,7 @@ class Config(BaseModel):
     provider: str = "google"
     google_api_key_env: str = "GOOGLE_API_KEY"
     openrouter_api_key_env: str = "OPENROUTER_API_KEY"
-    image_model: str = "gemini-3-pro-image-preview"
+    image_model: str = "gemini-2.5-flash-image"
     text_model: str = "gemini-2.5-flash"
     timeout_image: float = 120.0
     timeout_text: float = 30.0

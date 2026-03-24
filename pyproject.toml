@@ -1,0 +1,6 @@
+[project]
+name = "logosylite"
+version = "1.0.0"
+description = "Auto logo generator for Polish city portals"
+requires-python = ">=3.11"
+license = {text = "MIT"}
