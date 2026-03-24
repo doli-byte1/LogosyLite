@@ -26,8 +26,8 @@
          ┌─────────────────┼─────────────────┐
          │                 │                 │
          ▼                 ▼                 ▼
-    PARSE DOMAIN     AI PROMPTY        GENEROWANIE
-    (krok 1-2)       (krok 3-5)        (krok 6-9)
+    PARSE DOMAIN     AI PROMPT          GENEROWANIE
+    (krok 1-2)       (krok 3-5)         (krok 6-9)
 ```
 
 ---
@@ -42,10 +42,9 @@
 │  "srodawielkopolska24.pl"                        │
 │    → miasto: Sroda Wielkopolska                  │
 │    → display: SrodaWielkopolska24.pl             │
-│    → icon_hint: stylized letters SW              │
 │                                                  │
 │  Baza: assets/city_adjectives.json (940 miast)   │
-│  Jesli miasto nie wykryte → BLAD (uzyj generate) │
+│  Jesli miasto nie wykryte → BLAD                 │
 └──────────────────────┬───────────────────────────┘
                        │
                        ▼
@@ -58,9 +57,6 @@
 │                                                  │
 │  config.yaml: provider = "openrouter"            │
 │    → OpenRouterProvider (proxy, wiecej modeli)    │
-│                                                  │
-│  Model: config.image_model (domyslnie             │
-│         gemini-3-pro-image-preview)               │
 └──────────────────────┬───────────────────────────┘
                        │
                        ▼
@@ -79,10 +75,8 @@
                        │
                        ▼
 ┌──────────────────────────────────────────────────┐
-│  KROK 4: AI GENERUJE 4 PROMPTY                   │
+│  KROK 4: AI GENERUJE PROMPT                      │
 │  providers.py → google_text_chat()               │
-│  (zawsze Google Gemini direct, niezaleznie       │
-│   od providera image-gen)                        │
 │                                                  │
 │  Laduje: prompts/meta_prompt.txt                 │
 │  Wstawia zmienne:                                │
@@ -94,10 +88,7 @@
 │    "colors": {"primary": "#C41E3A", ...},        │
 │    "prompts": [                                  │
 │      {"label": "Litera S z ratuszem",            │
-│       "prompt": "Stworz mikroikone..."},         │
-│      {"label": "Ratusz miejski", ...},           │
-│      {"label": "Klos zboza", ...},               │
-│      {"label": "Abstrakcyjny symbol", ...}       │
+│       "prompt": "Stworz mikroikone..."}          │
 │    ]                                             │
 │  }                                               │
 │                                                  │
@@ -117,10 +108,8 @@
                        │
                        ▼
 ┌──────────────────────────────────────────────────┐
-│  KROK 6: GENEROWANIE 4 IKON                     │
+│  KROK 6: GENEROWANIE IKONY                      │
 │  icon_gen.py → generate_icon()                   │
-│                                                  │
-│  Dla kazdego prompta z kroku 4:                  │
 │                                                  │
 │  prompt ──→ provider.generate_image()            │
 │              (Google lub OpenRouter)              │
@@ -141,13 +130,10 @@
 │         BICUBIC resize → 64x64 px                │
 │              │                                   │
 │              ▼                                   │
-│         icon_v{N}.png                            │
+│         icon.png                                 │
 │                                                  │
-│  Jesli keep_originals: true → zachowaj           │
-│  oryginal w original/ (domyslnie: kasuj)         │
-│                                                  │
-│  Koszt: 4 × ~$0.07 = ~$0.28 (gemini-3-pro)      │
-│  Czas: 4 × ~25s = ~100s                         │
+│  Koszt: ~$0.003 (gemini-2.5-flash-image)         │
+│  Czas: ~7s                                       │
 └──────────────────────┬───────────────────────────┘
                        │
                        ▼
@@ -158,18 +144,10 @@
 │  Pillow sklada: ikona + tekst = logo .webp       │
 │  Czcionka: Poppins Bold                          │
 │                                                  │
-│  Wersja domena:                                  │
 │  ┌──────┬──────────────────────────┐             │
 │  │ ICON │ SrodaWielkopolska24.pl   │             │
 │  └──────┴──────────────────────────┘             │
-│    → logo_v1_64.webp, logo_v1_32.webp            │
-│    → logo_v2_64.webp, logo_v2_32.webp ...        │
-│                                                  │
-│  Wersja miasto:                                  │
-│  ┌──────┬──────────────────────────┐             │
-│  │ ICON │ Sroda Wielkopolska       │             │
-│  └──────┴──────────────────────────┘             │
-│    → miasto/logo_v1_64.webp ...                  │
+│    → logo_v1_64.webp                             │
 └──────────────────────┬───────────────────────────┘
                        │
                        ▼
@@ -177,12 +155,12 @@
 │  KROK 8: ZAPISZ HISTORIE                         │
 │  history.py → save_prompts()                     │
 │                                                  │
-│  Dodaje 4 nowe prompty do                        │
+│  Dodaje prompt do                                │
 │  output/{domain}/history.json                    │
 │  (max 10, FIFO)                                  │
 │                                                  │
 │  Przy nastepnym runie AI dostanie te labelki     │
-│  i zaproponuje INNE motywy                       │
+│  i zaproponuje INNY motyw                        │
 └──────────────────────┬───────────────────────────┘
                        │
                        ▼
@@ -205,21 +183,11 @@
 ```
 output/
 └── srodawielkopolska24.pl/
-    ├── gemini-3-pro-image-preview/    # run z modelem
-    │   ├── icon_v1.png                # ikona 64x64
-    │   ├── icon_v2.png
-    │   ├── icon_v3.png
-    │   ├── icon_v4.png
-    │   ├── logo_v1_64.webp            # logo domena 64px
-    │   ├── logo_v1_32.webp            # logo domena 32px
-    │   ├── logo_v2_64.webp
-    │   ├── ...
-    │   └── miasto/
-    │       ├── logo_v1_64.webp        # logo miasto 64px
-    │       ├── logo_v1_32.webp
-    │       └── ...
-    ├── history.json                   # historia promptow
-    └── metadata.json                  # wyniki ostatniego runa
+    ├── gemini-2.5-flash-image/
+    │   ├── icon.png              # ikona 64x64
+    │   └── logo_v1_64.webp       # logo = ikona + domena
+    ├── history.json              # historia promptow
+    └── metadata.json             # wyniki ostatniego runa
 ```
 
 ---
@@ -240,13 +208,13 @@ Klient                          Serwer (FastAPI)
   │ ──────────────────────────────>│
   │  {"status": "running"}         │
   │ <──────────────────────────────│
-  │                                │     ... ~2 min ...
+  │                                │     ... ~10s ...
   │  GET /status/abc               │
   │ ──────────────────────────────>│
   │  {"status": "done",            │
-  │   "icons": [...],              │
-  │   "logos": [...],              │
-  │   "cost_usd": 0.28}           │
+  │   "icon": "...",               │
+  │   "logo": "...",               │
+  │   "cost_usd": 0.004}          │
   │ <──────────────────────────────│
   │                                │
   │  GET /file/x.pl/.../logo.webp  │
@@ -255,16 +223,16 @@ Klient                          Serwer (FastAPI)
   │ <──────────────────────────────│
 
 
-Tryb SYNC (dla szybkich modeli):
+Tryb SYNC (szybszy):
 
   │  POST /generate                │
   │  {"domain": "x.pl",           │
   │   "sync": true}               │
   │ ──────────────────────────────>│
   │                                │──→ await auto_generate()
-  │        ... czeka ~2 min ...    │
+  │        ... czeka ~10s ...      │
   │  {"status": "done",            │
-  │   "icons": [...], ...}         │
+  │   "icon": "...", ...}          │
   │ <──────────────────────────────│
 ```
 
@@ -299,7 +267,7 @@ config.yaml: provider = "openrouter"
 
 ---
 
-UWAGA: google_text_chat() (generowanie promptow)
+UWAGA: google_text_chat() (generowanie promptu)
        zawsze uzywa Google direct, niezaleznie od providera.
        Potrzebujesz GOOGLE_API_KEY nawet przy provider=openrouter.
 ```
@@ -310,23 +278,21 @@ UWAGA: google_text_chat() (generowanie promptow)
 
 ```
 RUN 1:
-  AI proponuje: [Ratusz, Kosciol, Klos, Logo mark]
-  → generuje 4 ikony
+  AI proponuje: "Ratusz miejski"
+  → generuje ikone + logo
   → zapisuje do history.json
 
 RUN 2:
   Meta-prompt dostaje:
-    "NIE POWTARZAJ: Ratusz, Kosciol, Klos, Logo mark"
-  AI proponuje: [Fontanna, Most, Herb, Inicjaly]
-  → generuje 4 nowe, inne ikony
-  → dopisuje do history.json (teraz 8 wpisow)
+    "NIE POWTARZAJ: Ratusz miejski"
+  AI proponuje: "Fontanna rynkowa"
+  → generuje nowa, inna ikone
 
 RUN 3:
   Meta-prompt dostaje:
-    "NIE POWTARZAJ: Ratusz, Kosciol, Klos, Logo mark,
-     Fontanna, Most, Herb, Inicjaly"
-  AI proponuje: [Park, Rzeka, Targ, Abstrakcja]
-  → 4 calkowicie nowe motywy
+    "NIE POWTARZAJ: Ratusz miejski, Fontanna rynkowa"
+  AI proponuje: "Klos zboza"
+  → calkowicie nowy motyw
 
 Po 10 wpisach najstarsze sa kasowane (FIFO).
 ```
@@ -335,10 +301,9 @@ Po 10 wpisach najstarsze sa kasowane (FIFO).
 
 ## Koszty
 
-| Model | Koszt/ikona | 4 ikony | Szybkosc |
-|-------|-------------|---------|----------|
-| gemini-3-pro-image-preview | $0.070 | $0.28 | ~25s/ikona |
-| gemini-2.5-flash-image | $0.003 | $0.012 | ~7s/ikona |
-| google/gemini-3.1-flash (OR) | $0.010 | $0.04 | ~10s/ikona |
+| Model | Koszt/ikona | Czas |
+|-------|-------------|------|
+| gemini-2.5-flash-image | $0.003 | ~7s |
+| gemini-3-pro-image-preview | $0.07 | ~18s |
 
-+ ~$0.001 za generowanie promptow (text model)
++ ~$0.001 za generowanie promptu (text model)

@@ -192,7 +192,7 @@ def test_api() -> None:
         data = r.json()
         status = data.get("status", "")
         if status == "done":
-            _ok("GET /status", f"done, ikony={len(data.get('icons', []))}")
+            _ok("GET /status", f"done, logo={data.get('logo', '?')}")
             break
         if status == "error":
             _fail("GET /status", f"error: {data.get('error', '?')}")
@@ -213,10 +213,8 @@ def test_api() -> None:
 
     # 9. GET /file (pobranie logo)
     _section("9. GET /file (pobranie logo)")
-    logos = data.get("logos", [])
-    if logos:
-        # Wyciagnij sciezke wzgledna z output/{domain}/...
-        logo_path = logos[0]
+    logo_path = data.get("logo", "")
+    if logo_path:
         # Usun prefix output/ jesli jest
         rel = logo_path.replace("output/", "").replace("output\\", "")
         parts = rel.split("/", 1) if "/" in rel else rel.split("\\", 1)
@@ -247,28 +245,24 @@ def test_api() -> None:
         result = r.json()
         _ok("POST /generate sync", f"status={result.get('status')}")
 
-        # Zapisz wszystkie logo
-        save_dir = Path("_test_output")
-        save_dir.mkdir(exist_ok=True)
-        saved = 0
-        for logo in result.get("logos", []):
+        # Pobierz logo
+        logo = result.get("logo", "")
+        if logo:
             rel = logo.replace("output/", "").replace("output\\", "")
             parts = rel.split("/", 1) if "/" in rel else rel.split("\\", 1)
             if len(parts) == 2:
                 r2 = httpx.get(f"{BASE}/file/{parts[0]}/{parts[1]}", timeout=10)
                 if r2.status_code == 200:
-                    fname = Path(parts[1]).name
-                    (save_dir / fname).write_bytes(r2.content)
-                    saved += 1
-
-        if saved > 0:
-            _ok("Zapis plikow", f"{saved} logo zapisanych w {save_dir}/")
-            # Cleanup
-            for f in save_dir.iterdir():
-                f.unlink()
-            save_dir.rmdir()
+                    save_path = Path("_test_logo_sync.webp")
+                    save_path.write_bytes(r2.content)
+                    _ok("Pobranie logo", f"{len(r2.content)} bytes -> {save_path}")
+                    save_path.unlink()
+                else:
+                    _fail("Pobranie logo", f"status={r2.status_code}")
+            else:
+                _fail("Pobranie logo", f"nie mozna sparsowac: {logo}")
         else:
-            _fail("Zapis plikow", "zero plikow zapisanych")
+            _fail("Pobranie logo", "brak logo w wyniku")
     else:
         _fail("POST /generate sync", f"status={r.status_code}: {r.text[:100]}")
 

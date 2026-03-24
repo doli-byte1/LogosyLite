@@ -1,9 +1,9 @@
 # LogosyLite
 
 Automatyczny generator logo dla polskich portali miejskich.
-Podaj domenę — AI wygeneruje 4 warianty ikon i złoży z nich gotowe logo.
+Podaj domenę — AI wygeneruje ikonę i złoży gotowe logo.
 
-**Jak to działa:** domena → wykrycie miasta (baza 940 miast) → AI generuje 4 prompty → 4 ikony (Gemini image) → usunięcie tła → kompozycja logo z tekstem domeny.
+**Jak to działa:** domena → wykrycie miasta (baza 940 miast) → AI generuje prompt → ikona (Gemini image) → usunięcie tła → kompozycja logo z tekstem domeny.
 
 ## Wymagania
 
@@ -51,6 +51,7 @@ curl -X POST http://localhost:8000/generate \
 
 # Sprawdź status
 curl http://localhost:8000/status/abc123
+# -> {"status": "done", "icon": "...", "logo": "...", ...}
 
 # Sync — czeka na wynik
 curl -X POST http://localhost:8000/generate \
@@ -62,6 +63,24 @@ curl http://localhost:8000/jobs
 
 # Pobierz plik
 curl http://localhost:8000/file/srodawielkopolska24.pl/gemini-2.5-flash-image/logo_v1_64.webp -o logo.webp
+```
+
+### Response (sync / status done)
+
+```json
+{
+  "status": "done",
+  "miasto": "Środa Wielkopolska",
+  "domain": "srodawielkopolska24.pl",
+  "display_name": "SrodaWielkopolska24.pl",
+  "model": "gemini-2.5-flash-image",
+  "colors": {"primary": "#C41E3A", "accent": "#1A3A6A"},
+  "icon": "output/srodawielkopolska24.pl/gemini-2.5-flash-image/icon.png",
+  "logo": "output/srodawielkopolska24.pl/gemini-2.5-flash-image/logo_v1_64.webp",
+  "label": "Litera S z kolegiata",
+  "cost_usd": 0.004,
+  "duration_s": 12.3
+}
 ```
 
 ## Konfiguracja
@@ -76,23 +95,22 @@ curl http://localhost:8000/file/srodawielkopolska24.pl/gemini-2.5-flash-image/lo
 | `keep_originals` | `false` | Trzymaj oryginały AI (przed rembg) |
 | `keep_last_runs` | `3` | Ile ostatnich runów per domena |
 | `icon_size` | `64` | Rozmiar ikony (px) |
-| `logo_sizes` | `[64, 32]` | Rozmiary logo (wysokość px) |
+| `logo_sizes` | `[64]` | Rozmiary logo (wysokość px) |
 
 ## Prompty
 
 Edytowalne pliki w `prompts/`:
-- `meta_prompt.txt` — prompt do AI który generuje 4 prompty do ikon
-- `image_template.txt` — szablon prompta do generowania obrazów
+- `meta_prompt.txt` — prompt do AI który generuje prompt do ikony
+- `image_template.txt` — szablon prompta do generowania obrazu
 
 ## Jak to działa
 
 ```
 domena → wykryj miasto (940 miast w bazie)
-  → AI generuje 4 prompty (Gemini text)
-  → 4 ikony (Gemini image)
+  → AI generuje prompt (Gemini text)
+  → 1 ikona (Gemini image)
   → rembg → autocrop → resize 64px
   → compose: ikona + tekst domeny = logo .webp
-  → compose: ikona + nazwa miasta = logo .webp
 ```
 
 Historia 10 ostatnich promptów — AI nie powtarza tych samych motywów.
@@ -119,7 +137,7 @@ LogosyLite/
 
 ## Koszt
 
-~$0.012 per run (4 ikony, gemini-2.5-flash-image).
+~$0.004 per run (1 ikona, gemini-2.5-flash-image).
 
 ## Licencja
 

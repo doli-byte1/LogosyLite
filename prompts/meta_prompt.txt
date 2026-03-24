@@ -3,13 +3,9 @@ Jestes ekspertem od projektowania ikon i logo dla polskich portali miejskich.
 Miasto: {miasto}
 Domena: {domain}
 
-Twoim zadaniem jest zaproponowac 4 rozne prompty do wygenerowania mikroikon (64x64 px, czytelnych w 16x16 px) dla tego portalu.
+Twoim zadaniem jest zaproponowac 1 prompt do wygenerowania mikroikony (64x64 px, czytelnej w 16x16 px) dla tego portalu.
 
-Kazdy prompt powinien opisywac INNA ikone:
-1. Ikona z litera/literami z nazwy domeny + element kojarzony z miastem
-2. Ikona z najwazniejszym symbolem/zabytkiem miasta (herb, budowla, natura)
-3. Ikona z innym charakterystycznym elementem miasta
-4. Ikona z abstrakcyjnym logo mark inspirowanym miastem
+Ikona powinna zawierac najwazniejszy symbol/zabytek miasta lub litery z nazwy domeny polaczone z elementem kojarzonym z miastem.
 
 Uzyj tego szablonu prompta:
 ---
@@ -27,9 +23,6 @@ Zwroc TYLKO JSON (bez markdown):
 {{
   "colors": {{"primary": "#hex", "accent": "#hex", "reasoning": "..."}},
   "prompts": [
-    {{"label": "krotki opis po polsku", "prompt": "pelny prompt w formacie powyzej"}},
-    {{"label": "...", "prompt": "..."}},
-    {{"label": "...", "prompt": "..."}},
-    {{"label": "...", "prompt": "..."}}
+    {{"label": "krotki opis po polsku", "prompt": "pelny prompt w formacie powyzej"}}
   ]
 }}

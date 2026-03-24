@@ -11,7 +11,7 @@ max_retries: 3
 keep_originals: false
 keep_last_runs: 3
 icon_size: 64
-logo_sizes: [64, 32]
+logo_sizes: [64]
 font_path: "assets/fonts/Poppins-Bold.ttf"
 font_multiplier: 0.55
 font_size_min: 12

@@ -61,7 +61,7 @@ class Config(BaseModel):
     keep_originals: bool = False
     keep_last_runs: int = 3
     icon_size: int = 64
-    logo_sizes: list[int] = [64, 32]
+    logo_sizes: list[int] = [64]
     font_path: str = "assets/fonts/Poppins-Bold.ttf"
     font_multiplier: float = 0.55
     font_size_min: int = 12

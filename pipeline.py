@@ -125,8 +125,8 @@ async def auto_generate(
         config, used_labels,
     )
 
-    for i, p in enumerate(ai_prompts[:4], 1):
-        logger.info("  [%d] %s", i, p.get("label", "?"))
+    prompt_data = ai_prompts[0]
+    logger.info("  Motyw: %s", prompt_data.get("label", "?"))
 
     # 5. Kolory
     suggested = None
@@ -138,44 +138,33 @@ async def auto_generate(
         )
     palette = _resolve_colors(color1, color2, suggested, config)
 
-    # 6. Generowanie ikon
+    # 6. Generowanie ikony
     model_short = model.split("/")[-1]
     model_dir = output_dir / domain / model_short
     model_dir.mkdir(parents=True, exist_ok=True)
 
-    gen_results: list[GenerationResult] = []
-    for i, prompt_data in enumerate(ai_prompts[:4], 1):
-        label = prompt_data.get("label", f"prompt_{i}")
-        prompt_text = prompt_data.get("prompt", "")
-        if not prompt_text:
-            continue
-        logger.info("  [%d/4] %s ...", i, label)
-        r = await generate_icon(
-            prompt_text, label, config,
-            model_dir / f"icon_v{i}.png",
-            provider, model,
-        )
-        if r:
-            gen_results.append(r)
-            logger.info("    OK (%.1fs)", r.usage.duration_s)
-        else:
-            logger.warning("    FAIL")
+    label = prompt_data.get("label", "icon")
+    prompt_text = prompt_data.get("prompt", "")
+    if not prompt_text:
+        raise RuntimeError("AI nie zwrocilo prompta")
 
-    if not gen_results:
-        raise RuntimeError("Zadna ikona sie nie wygenerowala")
+    logger.info("  Generowanie ikony: %s ...", label)
+    r = await generate_icon(
+        prompt_text, label, config,
+        model_dir / "icon.png",
+        provider, model,
+    )
+    if not r:
+        raise RuntimeError("Ikona sie nie wygenerowala")
+    logger.info("    OK (%.1fs)", r.usage.duration_s)
 
     # 7. Compose logo
-    icon_paths = [Path(r.icon_path) for r in gen_results]
+    icon_paths = [Path(r.icon_path)]
     logo_paths = compose_logos(icon_paths, display, palette, config, model_dir)
-    logger.info("%d logo z domena", len(logo_paths))
+    logger.info("%d logo", len(logo_paths))
 
-    city_dir = model_dir / "miasto"
-    city_logos = compose_logos(icon_paths, miasto, palette, config, city_dir)
-    logo_paths.extend(city_logos)
-    logger.info("%d logo z miastem", len(city_logos))
-
-    # 8. Historia — zapisz nowe prompty
-    save_prompts(output_dir, domain, ai_prompts[:4])
+    # 8. Historia — zapisz prompt
+    save_prompts(output_dir, domain, ai_prompts[:1])
 
     # 9. Cleanup
     removed = cleanup_output(domain, config)
@@ -183,7 +172,6 @@ async def auto_generate(
         logger.info("Cleanup: usunieto %d starych runow", removed)
 
     # 10. Metadata
-    gen_cost = sum(r.usage.total_cost_usd for r in gen_results)
     elapsed = time.monotonic() - t0
 
     result = {
@@ -194,10 +182,10 @@ async def auto_generate(
         "model": model,
         "provider": config.provider,
         "colors": palette.model_dump(),
-        "icons": [r.icon_path for r in gen_results],
-        "logos": [str(p) for p in logo_paths],
-        "ai_prompts": [p.get("label", "") for p in ai_prompts[:4]],
-        "cost_usd": round(gen_cost + 0.001, 4),
+        "icon": r.icon_path,
+        "logo": str(logo_paths[0]) if logo_paths else "",
+        "label": prompt_data.get("label", ""),
+        "cost_usd": round(r.usage.total_cost_usd + 0.001, 4),
         "duration_s": round(elapsed, 1),
         "generated_at": datetime.now(UTC).isoformat(),
     }
@@ -205,5 +193,5 @@ async def auto_generate(
     meta_path = output_dir / domain / "metadata.json"
     meta_path.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    logger.info("Gotowe: %d ikon, %d logo, $%.4f, %.0fs", len(gen_results), len(logo_paths), gen_cost, elapsed)
+    logger.info("Gotowe: 1 ikona, 1 logo, $%.4f, %.0fs", r.usage.total_cost_usd, elapsed)
     return result
